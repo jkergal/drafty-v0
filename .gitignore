@@ -1,4 +1,4 @@
 $VARIOUS
 .env
 node_modules
-$testing.js
+testing.js
