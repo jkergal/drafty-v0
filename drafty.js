@@ -96,7 +96,7 @@ function getTimestampSeconds(date, dayOfWeek) {
 //-----------------------------//
 
 
-let scheduledPodsMessage = new cron.CronJob('00 37 09 * * 1', () => { 
+let scheduledPodsMessage = new cron.CronJob('00 * * * * *', () => { 
     // for Cron : each " * " above means one parameter, 
     // from left to right : second 0-59, minute 0-59, hour 0-23, day of month 1-31, month 0-11, day of week 0-6
     // You can use "*" to don't use the parameter
