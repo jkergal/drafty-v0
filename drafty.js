@@ -96,7 +96,7 @@ function getTimestampSeconds(date, dayOfWeek) {
 //-----------------------------//
 
 
-let scheduledPodsMessage = new cron.CronJob('00 * * * * *', () => { 
+let scheduledPodsMessage = new cron.CronJob('00 38 23 * * 1', () => { 
     // for Cron : each " * " above means one parameter, 
     // from left to right : second 0-59, minute 0-59, hour 0-23, day of month 1-31, month 0-11, day of week 0-6
     // You can use "*" to don't use the parameter
@@ -135,7 +135,7 @@ let scheduledPodsMessage = new cron.CronJob('00 * * * * *', () => {
     
     //----------------------------------------//
 
-    const scheduledMessageContent = `**- Ouverture des inscriptions pour la semaine du ${podMondayDateShort} au ${podSundayDateShort} -**\n\nPour vous inscrire réagissez à ce message avec vos jours de disponibilité : \n\n${emojiMonday} : Lundi ${podMondayDate} (20h) - Draft ${currentMtgFormat} \n${emojiTuesday} : Mardi ${podTuesdayDate} (20h) - Draft ${currentMtgFormat} \n${emojiWednesday} : Mercredi ${podWednesdayDate} (20h) - Draft ${currentMtgFormat} \n${emojiThursday} : Jeudi ${podThursdayDate} (20h) - Draft ${currentMtgFormat} \n${emojiFriday} : Vendredi ${podFridayDate} (20h30) - Draft ${currentMtgFormat} \n${emojiSaturday} : Samedi ${podSaturdayDate} + " (20h30) - Draft ${currentMtgFormat} \n${emojiSunday} : Dimanche ${podSundayDate} (20h) - Draft ${currentMtgFormat} \n:alarm_clock:  : Dimanche ${podSundayDate} : Draft Asynchrone (21h) - ${currentMtgFormat} \n\nDès lors qu'une table de 8 joueurs est complète, un message de check-in automatique sera posté dans le channel approprié. Vous serez alors tagués et invités à valider votre présence.\n\nLes joueurs inscrits supplémentaires (mais en nombre insuffisant pour constituer une POD) sont considérés comme prioritaires sur les remplacements éventuels (absence de check-in, désistement de dernière minute etc...).`
+    const scheduledMessageContent = `**- Ouverture des inscriptions pour la semaine du ${podMondayDateShort} au ${podSundayDateShort} -** \n\nPour vous inscrire réagissez à ce message avec vos jours de disponibilité : \n\n${emojiMonday} : Lundi ${podMondayDate} (20h) - Draft ${currentMtgFormat} \n${emojiTuesday} : Mardi ${podTuesdayDate} (20h) - Draft ${currentMtgFormat} \n${emojiWednesday} : Mercredi ${podWednesdayDate} (20h) - Draft ${currentMtgFormat} \n${emojiThursday} : Jeudi ${podThursdayDate} (20h) - Draft ${currentMtgFormat} \n${emojiFriday} : Vendredi ${podFridayDate} (20h30) - Draft ${currentMtgFormat} \n${emojiSaturday} : Samedi ${podSaturdayDate} + " (20h30) - Draft ${currentMtgFormat} \n${emojiSunday} : Dimanche ${podSundayDate} (20h) - Draft ${currentMtgFormat} \n:alarm_clock:  : Dimanche ${podSundayDate} : Draft Asynchrone (21h) - ${currentMtgFormat} \n\nDès lors qu'une table de 8 joueurs est complète, un message de check-in automatique sera posté dans le channel approprié. Vous serez alors tagués et invités à valider votre présence.\n\nLes joueurs inscrits supplémentaires (mais en nombre insuffisant pour constituer une POD) sont considérés comme prioritaires sur les remplacements éventuels (absence de check-in, désistement de dernière minute etc...).`
 
     channelEntries.send(scheduledMessageContent)
     .then(async (sentMessage) => { 
@@ -185,7 +185,7 @@ let scheduledPodsMessage = new cron.CronJob('00 * * * * *', () => {
                     if (podNumber <= 2) {
 
                         if (podNumber === 1) {
-                            channel1.send("------------\n\nLa **TABLE " + podNumber + "** de ***" + podDay + " " + nextDayOfTheWeek + " 20h*** a ses 8 joueurs !\n" + " - <@" + usersIdTable[0].toString() + ">\n" + " - <@" + usersIdTable[1].toString() + ">\n" + " - <@" + usersIdTable[2].toString() + ">\n" + " - <@" + usersIdTable[3].toString() + ">\n" + " - <@" + usersIdTable[4].toString() + ">\n" + " - <@" + usersIdTable[5].toString() + ">\n" + " - <@" + usersIdTable[6].toString() + ">\n" + " - <@" + usersIdTable[7].toString() + ">\n\nValidez votre présence en cliquant sur la réaction ✅ en bas de ce message !")
+                            channel1.send(`------------ \n\nLa **TABLE ${podNumber} ** de ***${podDay} ${nextDayOfTheWeek} 20h*** a ses 8 joueurs ! \n- <@${usersIdTable[0].toString()}> \n- <@${usersIdTable[1].toString()}> \n- <@${usersIdTable[2].toString()}> \n- <@${usersIdTable[3].toString()}> \n- <@${usersIdTable[4].toString()}> \n- <@${usersIdTable[5].toString()}> \n- <@${usersIdTable[6].toString()}> \n- <@${usersIdTable[7].toString()}> \n\nValidez votre présence en cliquant sur la réaction ✅ en bas de ce message !`)
                             .then((sentMessage) => { 
                                 sentMessage.react('✅')
                             });
@@ -196,7 +196,7 @@ let scheduledPodsMessage = new cron.CronJob('00 * * * * *', () => {
                         }
 
                         if (podNumber === 2) {
-                            channel2.send("------------\n\nLa **TABLE " + podNumber + "** de ***" + podDay + " " + nextDayOfTheWeek + " 20h*** a ses 8 joueurs !\n" + " - <@" + usersIdTable[0].toString() + ">\n" + " - <@" + usersIdTable[1].toString() + ">\n" + " - <@" + usersIdTable[2].toString() + ">\n" + " - <@" + usersIdTable[3].toString() + ">\n" + " - <@" + usersIdTable[4].toString() + ">\n" + " - <@" + usersIdTable[5].toString() + ">\n" + " - <@" + usersIdTable[6].toString() + ">\n" + " - <@" + usersIdTable[7].toString() + ">\n\nValidez votre présence en cliquant sur la réaction ✅ en bas de ce message !")
+                            channel2.send(`------------ \n\nLa **TABLE ${podNumber} ** de ***${podDay} ${nextDayOfTheWeek} 20h*** a ses 8 joueurs ! \n- <@${usersIdTable[0].toString()}> \n- <@${usersIdTable[1].toString()}> \n- <@${usersIdTable[2].toString()}> \n- <@${usersIdTable[3].toString()}> \n- <@${usersIdTable[4].toString()}> \n- <@${usersIdTable[5].toString()}> \n- <@${usersIdTable[6].toString()}> \n- <@${usersIdTable[7].toString()}> \n\nValidez votre présence en cliquant sur la réaction ✅ en bas de ce message !`)
                             .then((sentMessage) => { 
                                 sentMessage.react('✅')
                             });
@@ -209,7 +209,7 @@ let scheduledPodsMessage = new cron.CronJob('00 * * * * *', () => {
                     }
 
                     else {
-                        podsMessage.channel.send("------------\n\n**ALERT - POD DU " + podDay + " " + nextDayOfTheWeek + " :**\n\n 2 tables de pods ont déjà été gérées par votre serviteur dévoué Drafty. \n\nMalheureusement, pour cette **" + podNumber + "ème table maintenant complète**, vous allez devoir vous débrouiller comme des grands! Créez une catégorie TABLE POD-" + podNumber + " ainsi que les channels associés, puis postez un message de check-in un peu comme je le fais d'habitude !\n\n------------")                    
+                        podsMessage.channel.send(`------------ \n\n**ALERT - POD DU ${podDay} ${nextDayOfTheWeek} :**\n\n 2 tables de pods ont déjà été gérées par votre serviteur dévoué Drafty. \n\nMalheureusement, pour cette **${podNumber}ème table maintenant complète**, vous allez devoir vous débrouiller comme des grands! Créez une catégorie TABLE POD-${podNumber} ainsi que les channels associés, puis postez un message de check-in un peu comme je le fais d'habitude !`)                    
                         return collectEntryReactions (emojiName, podDay, dayOfTheWeek, podNumber , channel1, channel2);
                     }
 
