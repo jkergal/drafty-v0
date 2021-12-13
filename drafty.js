@@ -116,24 +116,26 @@ let scheduledPodsMessage = new cron.CronJob('00 * * * * *', () => {
 
     //----------VARIABLES TO CHANGE WHEN YOU CHANGE SERVER----------//
 
-    const channelEntries = client.channels.cache.get("916058353820663839"); // Change the channel ID for draft entries here
-    const channelCheckIn1 = client.channels.cache.get("916058487627337818"); // Change the channel ID for pod 1 check-in here
-    const channelCheckIn2 = client.channels.cache.get("916058517297836043"); // Change the channel ID for pod 2 check-in here
-    const channelCheckInAsync = client.channels.cache.get("916058562013298699"); // Change the channel ID for asynchron pod check-in here
-    const channelFonctionnement = client.channels.cache.get("916058450658738217"); // Change the channel ID of the channel you want to tag in your entries message
-    const guild = client.guilds.cache.get("857567246519107634"); // Change your Discord server ID here
+    // Serveur JK 
 
-    const emojiMonday = guild.emojis.cache.get('916059899258089502'); // Change here and below the emojis IDs considering your server's emojis
-    const emojiTuesday = guild.emojis.cache.get('916059930954436688');
-    const emojiWednesday = guild.emojis.cache.get('916059985732067349');
-    const emojiThursday = guild.emojis.cache.get('916060023141072926');
-    const emojiFriday = guild.emojis.cache.get('916060074491904010');
-    const emojiSaturday = guild.emojis.cache.get('916060115692568616');
-    const emojiSunday = guild.emojis.cache.get('916060144582918164');
+    const channelEntries = client.channels.cache.get("910686979828633611"); // Change the channel ID for your message here
+    const channelCheckIn1 = client.channels.cache.get("915042199270465626"); // Change the channel ID for pod 1 check-in here
+    const channelCheckIn2 = client.channels.cache.get("915674849370853386"); // Change the channel ID for pod 2 check-in here
+    const channelCheckInAsync = client.channels.cache.get("915674925690392587"); // Change the channel ID for asynchron pod check-in here
+    const channelFonctionnement = client.channels.cache.get("911268701528002590"); // Change the channel ID of the channel you want to tag in your entries message
+    const guild = client.guilds.cache.get("910603170336624640"); // Change your Discord server ID here 
 
+    const emojiMonday = guild.emojis.cache.get('911267403072167966'); // Change here and below the emojis IDs considering your server's emojis
+    const emojiTuesday = guild.emojis.cache.get('911267403046998016');
+    const emojiWednesday = guild.emojis.cache.get('911267403084730418');
+    const emojiThursday = guild.emojis.cache.get('911267403046985738');
+    const emojiFriday = guild.emojis.cache.get('911268283901177876');
+    const emojiSaturday = guild.emojis.cache.get('911267403034415114');
+    const emojiSunday = guild.emojis.cache.get('911267403109912606');
+    
     //----------------------------------------//
 
-    const scheduledMessageContent = "<@916652954633789450> **- Ouverture des inscriptions pour la semaine du " + podMondayDateShort + " au " + podSundayDateShort + "  -**\n\nPour vous inscrire réagissez à ce message avec vos jours de disponibilité : \n\n:regional_indicator_l: : Lundi " + podMondayDate + " (20h) - Draft " + currentMtgFormat + "\n:regional_indicator_m: : Mardi " + podTuesdayDate + " (20h) - Draft " + currentMtgFormat + "\n:regional_indicator_w: : Mercredi " + podWednesdayDate + " (20h) - Draft " + currentMtgFormat + "\n:regional_indicator_j: : Jeudi " + podThursdayDate + " (20h) - Draft " + currentMtgFormat + "\n:regional_indicator_v: : Vendredi " + podFridayDate + " (20h30) - Draft " + currentMtgFormat + "\n:regional_indicator_s: : Samedi " + podSaturdayDate + " (20h30) - Draft " + currentMtgFormat + "\n:regional_indicator_d: : Dimanche " + podSundayDate + " (20h) - Draft " + currentMtgFormat + "\n:alarm_clock:  : Dimanche " + podSundayDate + " : Draft Asynchrone (21h) - " + currentMtgFormat + "\n\nDès lors qu'une table de 8 joueurs est complète, un message de check-in automatique sera posté dans le channel approprié. Vous serez alors tagués et invités à valider votre présence.\n\nLes joueurs inscrits supplémentaires (mais en nombre insuffisant pour constituer une POD) sont considérés comme prioritaires sur les remplacements éventuels (absence de check-in, désistement de dernière minute etc...)."
+    const scheduledMessageContent = `**- Ouverture des inscriptions pour la semaine du ${podMondayDateShort} au ${podSundayDateShort} -**\n\nPour vous inscrire réagissez à ce message avec vos jours de disponibilité : \n\n${emojiMonday} : Lundi ${podMondayDate} (20h) - Draft ${currentMtgFormat} \n${emojiTuesday} : Mardi ${podTuesdayDate} (20h) - Draft ${currentMtgFormat} \n${emojiWednesday} : Mercredi ${podWednesdayDate} (20h) - Draft ${currentMtgFormat} \n${emojiThursday} : Jeudi ${podThursdayDate} (20h) - Draft ${currentMtgFormat} \n${emojiFriday} : Vendredi ${podFridayDate} (20h30) - Draft ${currentMtgFormat} \n${emojiSaturday} : Samedi ${podSaturdayDate} + " (20h30) - Draft ${currentMtgFormat} \n${emojiSunday} : Dimanche ${podSundayDate} (20h) - Draft ${currentMtgFormat} \n:alarm_clock:  : Dimanche ${podSundayDate} : Draft Asynchrone (21h) - ${currentMtgFormat} \n\nDès lors qu'une table de 8 joueurs est complète, un message de check-in automatique sera posté dans le channel approprié. Vous serez alors tagués et invités à valider votre présence.\n\nLes joueurs inscrits supplémentaires (mais en nombre insuffisant pour constituer une POD) sont considérés comme prioritaires sur les remplacements éventuels (absence de check-in, désistement de dernière minute etc...).`
 
     channelEntries.send(scheduledMessageContent)
     .then(async (sentMessage) => { 
@@ -156,14 +158,21 @@ let scheduledPodsMessage = new cron.CronJob('00 * * * * *', () => {
             let usersIdTable = [];
 
             const filter = (reaction, user) => {
-                return [emojiName].includes(reaction.emoji.name) && !user.bot;
+                return [emojiName].includes(reaction.emoji.name) && user.id != sentMessage.author.id;
             };
             
-            const collector = podsMessage.createReactionCollector({ filter, max: maxPodsEntries, time: 950400000 }); // "time" -> la collecte d'inscriptions s'arrête 11 jours plus tard
+            const collector = podsMessage.createReactionCollector({ filter, max: maxPodsEntries, time: 950400000, dispose: true }); // "time" -> la collecte d'inscriptions s'arrête 11 jours plus tard
             
             collector.on('collect', (reaction, user) => {
                 usersIdTable.push(`${user.id}`);
                 console.log(`➕ ${user.tag} registered to the pod : ${reaction.emoji.name}`);
+                console.log(usersIdTable);
+            });
+
+            collector.on('remove', (reaction, user) => {
+                console.log(`➖ ${user.tag} removed the reaction ${reaction.emoji.name}`);
+                usersIdTable = usersIdTable.filter(userId => userId != user.id);
+                console.log(usersIdTable);
             });
             
             collector.on('end', (collected, reason) => {
@@ -207,11 +216,6 @@ let scheduledPodsMessage = new cron.CronJob('00 * * * * *', () => {
             });   
         }
 
-
-
-        // function sendFullPodsMessages (emojiName, podDay, podNumber , channel1, channel2, recursiveFunction) {
-
-        // }
 
         
         const collectMondayEntries = async (podNumber) => {
