@@ -91,6 +91,14 @@ function getTimestampSeconds(date, dayOfWeek) {
 
 };
 
+function getDiscordTimestamp(date) {
+    return date = "<t:" + date + ":D>";
+}
+
+function getShortDiscordTimestamp(date) {
+    return date = "<t:" + date + ":d>";
+}
+
 //-----------------------------//
 //----MSG ENTRIES + CHECKIN----//
 //-----------------------------//
@@ -104,15 +112,25 @@ let scheduledPodsMessage = new cron.CronJob('00 30 19 * * 5', () => {
 
     const scheduledMessageDate = new Date();
 
-    let podMondayDate = "<t:" + getTimestampSeconds(scheduledMessageDate, 1) + ":D>";
-    let podMondayDateShort = "<t:" + getTimestampSeconds(scheduledMessageDate, 1) + ":d>";
-    let podTuesdayDate = "<t:" + getTimestampSeconds(scheduledMessageDate, 2) + ":D>";
-    let podWednesdayDate = "<t:" + getTimestampSeconds(scheduledMessageDate, 3) + ":D>";
-    let podThursdayDate = "<t:" + getTimestampSeconds(scheduledMessageDate, 4) + ":D>";
-    let podFridayDate = "<t:" + getTimestampSeconds(scheduledMessageDate, 5) + ":D>";
-    let podSaturdayDate = "<t:" + getTimestampSeconds(scheduledMessageDate, 6) + ":D>";
-    let podSundayDate = "<t:" + getTimestampSeconds(scheduledMessageDate, 7) + ":D>";
-    let podSundayDateShort = "<t:" + getTimestampSeconds(scheduledMessageDate, 7) + ":d>";
+    let podMondayDate = getTimestampSeconds(scheduledMessageDate, 1);
+    let podMondayDateShort = getTimestampSeconds(scheduledMessageDate, 1);
+    let podTuesdayDate = getTimestampSeconds(scheduledMessageDate, 2);
+    let podWednesdayDate = getTimestampSeconds(scheduledMessageDate, 3);
+    let podThursdayDate = getTimestampSeconds(scheduledMessageDate, 4);
+    let podFridayDate = getTimestampSeconds(scheduledMessageDate, 5);
+    let podSaturdayDate = getTimestampSeconds(scheduledMessageDate, 6);
+    let podSundayDate = getTimestampSeconds(scheduledMessageDate, 7);
+    let podSundayDateShort = getTimestampSeconds(scheduledMessageDate, 7);
+
+    let podDiscordMondayDate = getDiscordTimestamp(podMondayDate);
+    let podDiscordMondayDateShort = getShortDiscordTimestamp(podMondayDateShort);
+    let podDiscordTuesdayDate = getDiscordTimestamp(podTuesdayDate);
+    let podDiscordWednesdayDate = getDiscordTimestamp(podWednesdayDate);
+    let podDiscordThursdayDate = getDiscordTimestamp(podThursdayDate);
+    let podDiscordFridayDate = getDiscordTimestamp(podFridayDate);
+    let podDiscordSaturdayDate = getDiscordTimestamp(podSaturdayDate);
+    let podDiscordSundayDate = getDiscordTimestamp(podSundayDate);
+    let podDiscordSundayDateShort = getShortDiscordTimestamp(podSundayDateShort);
 
     //----------VARIABLES TO CHANGE WHEN YOU CHANGE SERVER----------//
 
@@ -135,7 +153,7 @@ let scheduledPodsMessage = new cron.CronJob('00 30 19 * * 5', () => {
 
     //----------------------------------------//
 
-    const scheduledMessageContent = `**- Ouverture des inscriptions pour la semaine du ${podMondayDateShort} au ${podSundayDateShort} -** \n\nPour vous inscrire réagissez à ce message avec vos jours de disponibilité : \n\n${emojiMonday} : Lundi ${podMondayDate} (20h) - Draft ${currentMtgFormat} \n${emojiTuesday} : Mardi ${podTuesdayDate} (20h) - Draft ${currentMtgFormat} \n${emojiWednesday} : Mercredi ${podWednesdayDate} (20h) - Draft ${currentMtgFormat} \n${emojiThursday} : Jeudi ${podThursdayDate} (20h) - Draft ${currentMtgFormat} \n${emojiFriday} : Vendredi ${podFridayDate} (20h30) - Draft ${currentMtgFormat} \n${emojiSaturday} : Samedi ${podSaturdayDate} + " (20h30) - Draft ${currentMtgFormat} \n${emojiSunday} : Dimanche ${podSundayDate} (20h) - Draft ${currentMtgFormat} \n:alarm_clock:  : Dimanche ${podSundayDate} : Draft Asynchrone (21h) - ${currentMtgFormat} \n\nDès lors qu'une table de 8 joueurs est complète, un message de check-in automatique sera posté dans le channel approprié. Vous serez alors tagués et invités à valider votre présence.\n\nLes joueurs inscrits supplémentaires (mais en nombre insuffisant pour constituer une POD) sont considérés comme prioritaires sur les remplacements éventuels (absence de check-in, désistement de dernière minute etc...).`
+    const scheduledMessageContent = `**- Ouverture des inscriptions pour la semaine du ${podDiscordMondayDateShort} au ${podDiscordSundayDateShort} -** \n\nPour vous inscrire réagissez à ce message avec vos jours de disponibilité : \n\n${emojiMonday} : Lundi ${podDiscordMondayDate} (20h) - Draft ${currentMtgFormat} \n${emojiTuesday} : Mardi ${podDiscordTuesdayDate} (20h) - Draft ${currentMtgFormat} \n${emojiWednesday} : Mercredi ${podDiscordWednesdayDate} (20h) - Draft ${currentMtgFormat} \n${emojiThursday} : Jeudi ${podDiscordThursdayDate} (20h) - Draft ${currentMtgFormat} \n${emojiFriday} : Vendredi ${podDiscordFridayDate} (20h30) - Draft ${currentMtgFormat} \n${emojiSaturday} : Samedi ${podDiscordSaturdayDate} + " (20h30) - Draft ${currentMtgFormat} \n${emojiSunday} : Dimanche ${podDiscordSundayDate} (20h) - Draft ${currentMtgFormat} \n:alarm_clock:  : Dimanche ${podDiscordSundayDate} : Draft Asynchrone (21h) - ${currentMtgFormat} \n\nDès lors qu'une table de 8 joueurs est complète, un message de check-in automatique sera posté dans le channel approprié. Vous serez alors tagués et invités à valider votre présence.\n\nLes joueurs inscrits supplémentaires (mais en nombre insuffisant pour constituer une POD) sont considérés comme prioritaires sur les remplacements éventuels (absence de check-in, désistement de dernière minute etc...).`
 
     channelEntries.send(scheduledMessageContent)
     .then(async (sentMessage) => { 
@@ -153,7 +171,7 @@ let scheduledPodsMessage = new cron.CronJob('00 30 19 * * 5', () => {
         let podNumber = 0;
 
 
-        function collectEntryReactions (emojiName, podDay, dayOfTheWeek, podNumber, hour, channel1, channel2) {
+        function collectEntryReactions (emojiName, podDay, dayOfTheWeek, podNumber, hour, channel1, channel2, podDiscordTimestamp) {
             podNumber = podNumber + 1;
             let usersIdTable = [];
 
@@ -185,32 +203,32 @@ let scheduledPodsMessage = new cron.CronJob('00 30 19 * * 5', () => {
                     if (podNumber <= 2) {
 
                         if (podNumber === 1) {
-                            channel1.send(`------------ \n\nLa **TABLE ${podNumber} ** de ***${podDay} ${nextDayOfTheWeek} ${hour}*** a ses 8 joueurs ! \n- <@${usersIdTable[0].toString()}> \n- <@${usersIdTable[1].toString()}> \n- <@${usersIdTable[2].toString()}> \n- <@${usersIdTable[3].toString()}> \n- <@${usersIdTable[4].toString()}> \n- <@${usersIdTable[5].toString()}> \n- <@${usersIdTable[6].toString()}> \n- <@${usersIdTable[7].toString()}> \n\nValidez votre présence en cliquant sur la réaction ✅ en bas de ce message !`)
+                            channel1.send(`------------ \n\nLa **TABLE ${podNumber} ** de ***${podDay} ${podDiscordTimestamp} ${hour}*** a ses 8 joueurs ! \n- <@${usersIdTable[0].toString()}> \n- <@${usersIdTable[1].toString()}> \n- <@${usersIdTable[2].toString()}> \n- <@${usersIdTable[3].toString()}> \n- <@${usersIdTable[4].toString()}> \n- <@${usersIdTable[5].toString()}> \n- <@${usersIdTable[6].toString()}> \n- <@${usersIdTable[7].toString()}> \n\nValidez votre présence en cliquant sur la réaction ✅ en bas de ce message !`)
                             .then((sentMessage) => { 
                                 sentMessage.react('✅')
                             });
                             console.log("✔️ Pod number " + podNumber + " is now full");
                             usersIdTable = [];
                             console.log("⚪️ Entries array for the Pod number " + podNumber + " successfully cleared : " +  usersIdTable);
-                            return collectEntryReactions (emojiName, podDay, dayOfTheWeek, podNumber , channel1, channel2);
+                            return collectEntryReactions (emojiName, podDay, dayOfTheWeek, podNumber, hour , channel1, channel2, podDiscordTimestamp);
                         }
 
                         if (podNumber === 2) {
-                            channel2.send(`------------ \n\nLa **TABLE ${podNumber} ** de ***${podDay} ${nextDayOfTheWeek} ${hour}*** a ses 8 joueurs ! \n- <@${usersIdTable[0].toString()}> \n- <@${usersIdTable[1].toString()}> \n- <@${usersIdTable[2].toString()}> \n- <@${usersIdTable[3].toString()}> \n- <@${usersIdTable[4].toString()}> \n- <@${usersIdTable[5].toString()}> \n- <@${usersIdTable[6].toString()}> \n- <@${usersIdTable[7].toString()}> \n\nValidez votre présence en cliquant sur la réaction ✅ en bas de ce message !`)
+                            channel2.send(`------------ \n\nLa **TABLE ${podNumber} ** de ***${podDay} ${podDiscordTimestamp} ${hour}*** a ses 8 joueurs ! \n- <@${usersIdTable[0].toString()}> \n- <@${usersIdTable[1].toString()}> \n- <@${usersIdTable[2].toString()}> \n- <@${usersIdTable[3].toString()}> \n- <@${usersIdTable[4].toString()}> \n- <@${usersIdTable[5].toString()}> \n- <@${usersIdTable[6].toString()}> \n- <@${usersIdTable[7].toString()}> \n\nValidez votre présence en cliquant sur la réaction ✅ en bas de ce message !`)
                             .then((sentMessage) => { 
                                 sentMessage.react('✅')
                             });
                             console.log("✔️ Pod number " + podNumber + " is now full");
                             usersIdTable = [];
                             console.log("⚪️ Entries array for the Pod number " + podNumber + " successfully cleared : " +  usersIdTable);
-                            return collectEntryReactions (emojiName, podDay, dayOfTheWeek, podNumber , channel1, channel2);
+                            return collectEntryReactions (emojiName, podDay, dayOfTheWeek, podNumber, hour , channel1, channel2, podDiscordTimestamp);
                         }
 
                     }
 
                     else {
-                        podsMessage.channel.send(`------------ \n\n**ALERT - POD DU ${podDay} ${nextDayOfTheWeek} ${hour} :**\n\n 2 tables de pods ont déjà été gérées par votre serviteur dévoué Drafty. \n\nMalheureusement, pour cette **${podNumber}ème table maintenant complète**, vous allez devoir vous débrouiller comme des grands! Créez une catégorie TABLE POD-${podNumber} ainsi que les channels associés, puis postez un message de check-in un peu comme je le fais d'habitude !`)                    
-                        return collectEntryReactions (emojiName, podDay, dayOfTheWeek, podNumber , channel1, channel2);
+                        podsMessage.channel.send(`------------ \n\n**ALERT - POD DU ${podDay} ${podDiscordTimestamp} ${hour} :**\n\n 2 tables de pods ont déjà été gérées par votre serviteur dévoué Drafty. \n\nMalheureusement, pour cette **${podNumber}ème table maintenant complète**, vous allez devoir vous débrouiller comme des grands! Créez une catégorie TABLE POD-${podNumber} ainsi que les channels associés, puis postez un message de check-in un peu comme je le fais d'habitude !`)                    
+                        return collectEntryReactions (emojiName, podDay, dayOfTheWeek, podNumber, hour , channel1, channel2, podDiscordTimestamp);
                     }
 
             });   
@@ -219,35 +237,35 @@ let scheduledPodsMessage = new cron.CronJob('00 30 19 * * 5', () => {
 
         
         const collectMondayEntries = async (podNumber) => {
-            collectEntryReactions ('l_letter', "LUNDI", 1, podNumber, "20h", channelCheckIn1, channelCheckIn2);
+            collectEntryReactions ('l_letter', "LUNDI", 1, podNumber, "20h", channelCheckIn1, channelCheckIn2, podDiscordMondayDate);
         }
 
         const collectTuesdayEntries = async (podNumber) => {
-            collectEntryReactions ('m_letter', "MARDI", 2, podNumber, "20h", channelCheckIn1, channelCheckIn2); 
+            collectEntryReactions ('m_letter', "MARDI", 2, podNumber, "20h", channelCheckIn1, channelCheckIn2, podDiscordTuesdayDate); 
         }
 
         const collectWednesdayEntries = async (podNumber) => {
-            collectEntryReactions ('w_letter', "MERCREDI", 3, podNumber, "20h", channelCheckIn1, channelCheckIn2); 
+            collectEntryReactions ('w_letter', "MERCREDI", 3, podNumber, "20h", channelCheckIn1, channelCheckIn2, podDiscordWednesdayDate); 
         }
 
         const collectThursdayEntries = async (podNumber) => {
-            collectEntryReactions ('j_letter', "JEUDI", 4, podNumber, "20h", channelCheckIn1, channelCheckIn2); 
+            collectEntryReactions ('j_letter', "JEUDI", 4, podNumber, "20h", channelCheckIn1, channelCheckIn2, podDiscordThursdayDate); 
         }
 
         const collectFridayEntries = async (podNumber) => {
-            collectEntryReactions ('v_letter', "VENDREDI", 5, podNumber, "20h30", channelCheckIn1, channelCheckIn2); 
+            collectEntryReactions ('v_letter', "VENDREDI", 5, podNumber, "20h30", channelCheckIn1, channelCheckIn2, podDiscordFridayDate); 
         }
 
         const collectSaturdayEntries = async (podNumber) => {
-            collectEntryReactions ('s_letter', "SAMEDI", 6, podNumber, "20h30", channelCheckIn1, channelCheckIn2);
+            collectEntryReactions ('s_letter', "SAMEDI", 6, podNumber, "20h30", channelCheckIn1, channelCheckIn2, podDiscordSaturdayDate);
         }
 
         const collectSundayEntries = async (podNumber) => {
-            collectEntryReactions ('d_letter', "DIMANCHE", 7, podNumber, "20h", channelCheckIn1, channelCheckIn2);
+            collectEntryReactions ('d_letter', "DIMANCHE", 7, podNumber, "20h", channelCheckIn1, channelCheckIn2, podDiscordSundayDate);
         }
 
         const collectAnsyncEntries = async (podNumber) => {
-            collectEntryReactions ('⏰', "DRAFT ASYNCHRONE DE DIMANCHE", 7, podNumber, "21h", channelCheckInAsync, channelCheckInAsync);
+            collectEntryReactions ('⏰', "DRAFT ASYNCHRONE DE DIMANCHE", 7, podNumber, "21h", channelCheckInAsync, channelCheckInAsync, podDiscordSundayDate);
         }
 
         collectMondayEntries(podNumber);
