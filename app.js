@@ -1,10 +1,12 @@
 //-----------------------------//
-//---------REQUISITES----------//
+//---------DEPENDECIES---------//
 //-----------------------------//
 
 const cron = require('cron');
-require('dotenv').config(); // Create a .env file to specify your bot token and commands' prefix
+require('dotenv').config();
 const { Client, Intents } = require('discord.js');
+const db = require('./db')
+// const { doc, setDoc } = require('firebase-admin/firestore')
 
 
 //-----------------------------//
@@ -18,10 +20,10 @@ client.once('ready', () => {
 
 
 //-----------------------------//
-//----------VARIABLES----------//
+//-------------VARS------------//
 //-----------------------------//
 
-let currentMtgFormat = "VOW";
+const currentMtgFormat = "VOW";
 
 
 //-----------------------------//
@@ -104,7 +106,7 @@ function getShortDiscordTimestamp(date) {
 //-----------------------------//
 
 
-let scheduledPodsMessage = new cron.CronJob('00 30 19 * * 5', () => { 
+let scheduledPodsMessage = new cron.CronJob('00 * * * * 5', () => { 
     // for Cron : each " * " above means one parameter, 
     // from left to right : second 0-59, minute 0-59, hour 0-23, day of month 1-31, month 0-11, day of week 0-6
     // You can use "*" to don't use the parameter
@@ -134,22 +136,22 @@ let scheduledPodsMessage = new cron.CronJob('00 30 19 * * 5', () => {
 
     //----------VARIABLES TO CHANGE WHEN YOU CHANGE SERVER----------//
 
-    // Serveur PERF LIMITE
+    // Serveur JK 
 
-        const channelEntries = client.channels.cache.get("684235805757145117"); // Change the channel ID for draft entries here
-        const channelCheckIn1 = client.channels.cache.get("725725364726530159"); // Change the channel ID for pod 1 check-in here
-        const channelCheckIn2 = client.channels.cache.get("725726906728710206"); // Change the channel ID for pod 2 check-in here
-        const channelCheckInAsync = client.channels.cache.get("783154310653280256"); // Change the channel ID for asynchron pod check-in here
-        const channelFonctionnement = client.channels.cache.get("769288446610636830"); // Change the channel ID of the channel you want to tag in your entries message
-        const guild = client.guilds.cache.get("668478387123388426"); // Change your Discord server ID here
+    const channelEntries = client.channels.cache.get("910686979828633611"); // Change the channel ID for your message here
+    const channelCheckIn1 = client.channels.cache.get("915042199270465626"); // Change the channel ID for pod 1 check-in here
+    const channelCheckIn2 = client.channels.cache.get("915674849370853386"); // Change the channel ID for pod 2 check-in here
+    const channelCheckInAsync = client.channels.cache.get("915674925690392587"); // Change the channel ID for asynchron pod check-in here
+    const channelFonctionnement = client.channels.cache.get("911268701528002590"); // Change the channel ID of the channel you want to tag in your entries message
+    const guild = client.guilds.cache.get("910603170336624640"); // Change your Discord server ID here 
 
-        const emojiMonday = guild.emojis.cache.get('911345759650209804'); // Change here and below the emojis IDs considering your server's emojis
-        const emojiTuesday = guild.emojis.cache.get('911345759729881119');
-        const emojiWednesday = guild.emojis.cache.get('911345759650209822');
-        const emojiThursday = guild.emojis.cache.get('911345759767642173');
-        const emojiFriday = guild.emojis.cache.get('911345759650218054');
-        const emojiSaturday = guild.emojis.cache.get('911345759344017479');
-        const emojiSunday = guild.emojis.cache.get('911345759398555669');
+    const emojiMonday = guild.emojis.cache.get('911267403072167966'); // Change here and below the emojis IDs considering your server's emojis
+    const emojiTuesday = guild.emojis.cache.get('911267403046998016');
+    const emojiWednesday = guild.emojis.cache.get('911267403084730418');
+    const emojiThursday = guild.emojis.cache.get('911267403046985738');
+    const emojiFriday = guild.emojis.cache.get('911268283901177876');
+    const emojiSaturday = guild.emojis.cache.get('911267403034415114');
+    const emojiSunday = guild.emojis.cache.get('911267403109912606');
 
     //----------------------------------------//
 
@@ -165,6 +167,15 @@ let scheduledPodsMessage = new cron.CronJob('00 30 19 * * 5', () => {
         sentMessage.react(emojiSaturday)
         sentMessage.react(emojiSunday)
         sentMessage.react('⏰')
+
+        const data = {
+            name: 'Los Angeles',
+            state: 'CA',
+            country: 'USA'
+          };
+
+        const res = await db.collection('pods-weeks-entries').doc(scheduledMessageDate.toString()).set(data);
+        console.log(res)
 
         let podsMessage = await sentMessage;
         const maxPodsEntries = 8;

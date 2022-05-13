@@ -2,8 +2,9 @@
   "name": "drafty",
   "version": "1.0.0",
   "description": "",
-  "main": "drafty.js",
+  "main": "app.js",
   "scripts": {
+    "start": "nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -11,6 +12,9 @@
   "dependencies": {
     "cron": "^1.8.2",
     "discord.js": "^13.3.1",
-    "dotenv": "^10.0.0"
+    "dotenv": "^10.0.0",
+    "express": "^4.18.1",
+    "firebase-admin": "^10.2.0",
+    "nodemon": "^2.0.16"
   }
 }
