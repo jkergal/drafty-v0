@@ -5,25 +5,41 @@
 const cron = require('cron');
 require('dotenv').config();
 const { Client, Intents } = require('discord.js');
+// const getDocs = require('firebase-admin')
 const db = require('./db')
 // const { doc, setDoc } = require('firebase-admin/firestore')
-
-
-//-----------------------------//
-//-------DISCORD CONNEXION-----//
-//-----------------------------//
-
-const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS] });
-client.once('ready', () => {
-    console.log('IM SUPER READY YEA!')
-})
-
 
 //-----------------------------//
 //-------------VARS------------//
 //-----------------------------//
 
 const currentMtgFormat = "VOW";
+
+let lastWeekCollection
+
+const getLastWeekCollection = async() => {
+    const lastFirestoreWeekCollection = await db.collection("pods-weeks-entries").orderBy("scheduledMessageDate", "desc").limit(1).get()
+
+    lastFirestoreWeekCollection.forEach(doc => {
+        // lastWeekCollection.push(doc.data())
+        return lastWeekCollection = {
+            id : doc.id,
+            data : doc.data()
+        } 
+      });
+}
+
+
+//-----------------------------//
+//-------DISCORD CLIENT--------//
+//-----------------------------//
+
+const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS] });
+client.once('ready', async () => {
+    console.log('IM SUPER READY YEA!')
+    await getLastWeekCollection()
+    console.log(lastWeekCollection)
+})
 
 
 //-----------------------------//
@@ -101,18 +117,31 @@ function getShortDiscordTimestamp(date) {
     return date = "<t:" + date + ":d>";
 }
 
+function padTo2Digits(num) {
+    return num.toString().padStart(2, '0');
+  }
+
+function formatDate(date) {
+    return [
+      padTo2Digits(date.getDate()),
+      padTo2Digits(date.getMonth() + 1),
+      date.getFullYear(),
+    ].join('/');
+  }
+
 //-----------------------------//
 //----MSG ENTRIES + CHECKIN----//
 //-----------------------------//
 
 
-let scheduledPodsMessage = new cron.CronJob('00 * * * * 5', () => { 
+let scheduledPodsMessage = new cron.CronJob('00 * * * * *', () => { 
     // for Cron : each " * " above means one parameter, 
     // from left to right : second 0-59, minute 0-59, hour 0-23, day of month 1-31, month 0-11, day of week 0-6
     // You can use "*" to don't use the parameter
     // Here, the Cron job is done every minutes with the "00" in first position (better to test and debug)
 
     const scheduledMessageDate = new Date();
+    const formatedMessageDate = formatDate(scheduledMessageDate).replaceAll('/', '-')
 
     let podMondayDate = getTimestampSeconds(scheduledMessageDate, 1);
     let podMondayDateShort = getTimestampSeconds(scheduledMessageDate, 1);
@@ -142,7 +171,7 @@ let scheduledPodsMessage = new cron.CronJob('00 * * * * 5', () => {
     const channelCheckIn1 = client.channels.cache.get("915042199270465626"); // Change the channel ID for pod 1 check-in here
     const channelCheckIn2 = client.channels.cache.get("915674849370853386"); // Change the channel ID for pod 2 check-in here
     const channelCheckInAsync = client.channels.cache.get("915674925690392587"); // Change the channel ID for asynchron pod check-in here
-    const channelFonctionnement = client.channels.cache.get("911268701528002590"); // Change the channel ID of the channel you want to tag in your entries message
+    // const channelFonctionnement = client.channels.cache.get("911268701528002590"); // Change the channel ID of the channel you want to tag in your entries message
     const guild = client.guilds.cache.get("910603170336624640"); // Change your Discord server ID here 
 
     const emojiMonday = guild.emojis.cache.get('911267403072167966'); // Change here and below the emojis IDs considering your server's emojis
@@ -168,14 +197,46 @@ let scheduledPodsMessage = new cron.CronJob('00 * * * * 5', () => {
         sentMessage.react(emojiSunday)
         sentMessage.react('⏰')
 
-        const data = {
-            name: 'Los Angeles',
-            state: 'CA',
-            country: 'USA'
-          };
+        const firestoreWeekCollection = 
+        {   
+            scheduledMessageDate: scheduledMessageDate,
+            monday: {},
+            tuesday: {},
+            wednesday: {},
+            thursday: {},
+            friday: {},
+            saturday: {},
+            sunday: {},
+            asyncPod: {}
+        }
 
-        const res = await db.collection('pods-weeks-entries').doc(scheduledMessageDate.toString()).set(data);
-        console.log(res)
+        const getDayOfEmoji = (reactEmojiName) => {
+            let firebasePodDay
+
+            switch(reactEmojiName) {
+                case 'l_letter' : firebasePodDay = "monday"
+                    break
+                case 'm_letter' : firebasePodDay = "tuesday"
+                    break
+                case 'w_letter' : firebasePodDay = "wednesday"
+                    break
+                case 'j_letter' : firebasePodDay = "thursday"
+                    break
+                case 'v_letter' : firebasePodDay = "friday"
+                    break
+                case 's_letter' : firebasePodDay = "saturday"
+                    break
+                case 'd_letter' : firebasePodDay = "sunday"
+                    break
+                case '⏰' : firebasePodDay = "asyncPod"
+                    break
+            }
+
+            return firebasePodDay
+        }
+
+        console.log(scheduledMessageDate)
+        const res = await db.collection('pods-weeks-entries').doc(scheduledMessageDate.toString()).set(firestoreWeekCollection);
 
         let podsMessage = await sentMessage;
         const maxPodsEntries = 8;
@@ -193,7 +254,16 @@ let scheduledPodsMessage = new cron.CronJob('00 * * * * 5', () => {
             const collector = podsMessage.createReactionCollector({ filter, max: maxPodsEntries, time: 950400000, dispose: true }); // "time" -> la collecte d'inscriptions s'arrête 11 jours plus tard
             
             collector.on('collect', (reaction, user) => {
-                usersIdTable.push(`${user.id}`);
+                usersIdTable.push(
+                    {
+                    "username" : user.username,
+                    "user id" : user.id
+                    }
+                );
+                db.collection('pods-weeks-entries').doc(scheduledMessageDate.toString()).update(
+                    {
+                        [getDayOfEmoji(reaction.emoji.name)]: usersIdTable
+                    });
                 console.log(`➕ ${user.tag} registered to the pod : ${reaction.emoji.name}`);
                 console.log(usersIdTable);
             });

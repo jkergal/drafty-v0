@@ -1,5 +1,3 @@
-const firebase = require('firebase-admin');
-
 var firebaseAdmin = require("firebase-admin");
 
 var serviceAccount = require("./serviceAccountKey.json");
