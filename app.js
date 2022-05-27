@@ -41,7 +41,6 @@ const getLastWeekCollection = async() => {
 }
 
 let scheduledMessageDate
-// let formatedMessageDate
 
 let podMondayDate
 let podMondayDateShort
@@ -160,17 +159,17 @@ function getShortDiscordTimestamp(date) {
     return date = "<t:" + date + ":d>";
 }
 
-function padTo2Digits(num) {
-    return num.toString().padStart(2, '0');
-  }
+// function padTo2Digits(num) {
+//     return num.toString().padStart(2, '0');
+//   }
 
-function formatDate(date) {
-    return [
-      padTo2Digits(date.getDate()),
-      padTo2Digits(date.getMonth() + 1),
-      date.getFullYear(),
-    ].join('/');
-  }
+// function formatDate(date) {
+//     return [
+//       padTo2Digits(date.getDate()),
+//       padTo2Digits(date.getMonth() + 1),
+//       date.getFullYear(),
+//     ].join('/');
+//   }
 
 const getDayOfEmoji = (reactEmojiName) => {
     let firebasePodDay
@@ -210,19 +209,22 @@ const getDayOfEmoji = (reactEmojiName) => {
         return [emojiName].includes(reaction.emoji.name) && user.id != sentMessage.author.id;
     };
     
-    const collector = podsMessage.createReactionCollector({ filter, max: maxPodsEntries, time: 950400000, dispose: true }); // "time" -> la collecte d'inscriptions s'arrête 11 jours plus tard
+    const collector = sentMessage.createReactionCollector({ filter, max: maxPodsEntries, time: 950400000, dispose: true }); // "time" -> la collecte d'inscriptions s'arrête 11 jours plus tard
     
     collector.on('collect', (reaction, user) => {
         usersIdTable.push(
             {
-            "username" : user.username,
-            "user id" : user.id
+                "username" : user.username,
+                "userId" : user.id
             }
         );
+
         db.collection('pods-weeks-entries').doc(scheduledMessageDate.toString()).update(
             {
                 [getDayOfEmoji(reaction.emoji.name)]: usersIdTable
-            });
+            }
+        );
+
         console.log(`➕ ${user.tag} registered to the pod : ${reaction.emoji.name}`);
         console.log(usersIdTable);
     });
@@ -234,27 +236,24 @@ const getDayOfEmoji = (reactEmojiName) => {
     });
     
     collector.on('end', (collected, reason) => {
-        // const reactionDate = new Date();
-        // let nextDayOfTheWeek = "<t:" + getTimestampSeconds(reactionDate, dayOfTheWeek) + ":D>";
-
 
         if (reason === 'limit')
 
             if (podNumber <= 2) {
 
                 if (podNumber === 1) {
-                    channel1.send(`------------ \n\nLa **TABLE ${podNumber} ** de ***${podDay} ${podDiscordTimestamp} ${hour}*** a ses 8 joueurs ! \n- <@${usersIdTable[0].toString()}> \n- <@${usersIdTable[1].toString()}> \n- <@${usersIdTable[2].toString()}> \n- <@${usersIdTable[3].toString()}> \n- <@${usersIdTable[4].toString()}> \n- <@${usersIdTable[5].toString()}> \n- <@${usersIdTable[6].toString()}> \n- <@${usersIdTable[7].toString()}> \n\nValidez votre présence en cliquant sur la réaction ✅ en bas de ce message !`)
+                    channel1.send(`------------ \n\nLa **TABLE ${podNumber} ** de ***${podDay} ${podDiscordTimestamp} ${hour}*** a ses 8 joueurs ! \n- <@${usersIdTable[0].userId.toString()}> \n- <@${usersIdTable[1].userId.toString()}> \n- <@${usersIdTable[2].userId.toString()}> \n- <@${usersIdTable[3].userId.toString()}> \n- <@${usersIdTable[4].userId.toString()}> \n- <@${usersIdTable[5].userId.toString()}> \n- <@${usersIdTable[6].userId.toString()}> \n- <@${usersIdTable[7].userId.toString()}> \n\nValidez votre présence en cliquant sur la réaction ✅ en bas de ce message !`)
                     .then((sentMessage) => { 
                         sentMessage.react('✅')
                     });
                     console.log("✔️ Pod number " + podNumber + " is now full");
                     usersIdTable = [];
                     console.log("⚪️ Entries array for the Pod number " + podNumber + " successfully cleared : " +  usersIdTable);
-                    return collectEntryReactions (emojiName, podDay, dayOfTheWeek, podNumber, hour , channel1, channel2, podDiscordTimestamp);
+                    return collectEntryReactions (emojiName, podDay, dayOfTheWeek, podNumber, hour , channel1, channel2, podDiscordTimestamp, podsMessage, sentMessage);
                 }
 
                 if (podNumber === 2) {
-                    channel2.send(`------------ \n\nLa **TABLE ${podNumber} ** de ***${podDay} ${podDiscordTimestamp} ${hour}*** a ses 8 joueurs ! \n- <@${usersIdTable[0].toString()}> \n- <@${usersIdTable[1].toString()}> \n- <@${usersIdTable[2].toString()}> \n- <@${usersIdTable[3].toString()}> \n- <@${usersIdTable[4].toString()}> \n- <@${usersIdTable[5].toString()}> \n- <@${usersIdTable[6].toString()}> \n- <@${usersIdTable[7].toString()}> \n\nValidez votre présence en cliquant sur la réaction ✅ en bas de ce message !`)
+                    channel2.send(`------------ \n\nLa **TABLE ${podNumber} ** de ***${podDay} ${podDiscordTimestamp} ${hour}*** a ses 8 joueurs ! \n- <@${usersIdTable[0].userId.toString()}> \n- <@${usersIdTable[1].userId.toString()}> \n- <@${usersIdTable[2].userId.toString()}> \n- <@${usersIdTable[3].userId.toString()}> \n- <@${usersIdTable[4].userId.toString()}> \n- <@${usersIdTable[5].userId.toString()}> \n- <@${usersIdTable[6].userId.toString()}> \n- <@${usersIdTable[7].userId.toString()}> \n\nValidez votre présence en cliquant sur la réaction ✅ en bas de ce message !`)
                     .then((sentMessage) => { 
                         sentMessage.react('✅')
                     });
@@ -336,7 +335,7 @@ async function restartLastEntriesCollection (podNumber) {
 //-----------------------------//
 
 
-let scheduledPodsMessage = new cron.CronJob('00 05 * * * *', () => { 
+let scheduledPodsMessage = new cron.CronJob('00 10 * * * *', () => { 
     // for Cron : each " * " above means one parameter, 
     // from left to right : second 0-59, minute 0-59, hour 0-23, day of month 1-31, month 0-11, day of week 0-6
     // You can use "*" to don't use the parameter
