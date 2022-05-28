@@ -42,7 +42,10 @@ let serverEmojis = {}
         return [emojiName].includes(reaction.emoji.name) && user.id != podsMessage.author.id;
     };
     
-    const collector = podsMessage.createReactionCollector({ filter, max: maxPodsEntries, time: 950400000, dispose: true }); // "time" -> la collecte d'inscriptions s'arrête 11 jours plus tard
+    const collector = podsMessage.createReactionCollector(
+        { 
+            filter, max: maxPodsEntries, time: 950400000, dispose: true // "time" -> la collecte d'inscriptions s'arrête 11 jours plus tard
+        }); 
     
     collector.on('collect', (reaction, user) => {
         usersIdTable.push(
@@ -55,8 +58,7 @@ let serverEmojis = {}
         db.collection('pods-weeks-entries').doc(scheduledMessageDate.toString()).update(
             {
                 [getRightValue.nameInDb(reaction.emoji.name)]: usersIdTable
-            }
-        );
+            });
 
         console.log(`➕ ${user.tag} registered to the pod : ${reaction.emoji.name}`);
         console.log(usersIdTable);
@@ -64,7 +66,16 @@ let serverEmojis = {}
 
     collector.on('remove', (reaction, user) => {
         console.log(`➖ ${user.tag} removed the reaction ${reaction.emoji.name}`);
-        usersIdTable = usersIdTable.filter(userId => userId != user.id);
+        usersIdTable = usersIdTable.filter(function (el) {
+            return  el.username !== user.username,
+                    el.userId !== user.id
+        });
+
+        db.collection('pods-weeks-entries').doc(scheduledMessageDate.toString()).update(
+            {
+                [getRightValue.nameInDb(reaction.emoji.name)]: usersIdTable
+            });
+        
         console.log(usersIdTable);
     });
     
@@ -75,31 +86,74 @@ let serverEmojis = {}
             if (podNumber <= 2) {
 
                 if (podNumber === 1) {
-                    getRightValue.checkinChannel(emojiName, podNumber, discordServer).send(`------------ \n\nLa **TABLE ${podNumber} ** de ***${getRightValue.dayInMessage(emojiName)} ${getRightValue.timestampInMessage(emojiName, podTimestampDates)} ${getRightValue.hourInMessage(emojiName)}*** a ses 8 joueurs ! \n- <@${usersIdTable[0].userId.toString()}> \n- <@${usersIdTable[1].userId.toString()}> \n- <@${usersIdTable[2].userId.toString()}> \n- <@${usersIdTable[3].userId.toString()}> \n- <@${usersIdTable[4].userId.toString()}> \n- <@${usersIdTable[5].userId.toString()}> \n- <@${usersIdTable[6].userId.toString()}> \n- <@${usersIdTable[7].userId.toString()}> \n\nValidez votre présence en cliquant sur la réaction ✅ en bas de ce message !`)
-                    .then((sentMessage) => { 
-                        sentMessage.react('✅')
-                    });
+                    getRightValue.checkinChannel(emojiName, podNumber, discordServer)
+                        .send(
+                            `------------ \n\n` +
+                            
+                            `La **TABLE ${podNumber} ** de ***${getRightValue.dayInMessage(emojiName)} ${getRightValue.timestampInMessage(emojiName, podTimestampDates)} ${getRightValue.hourInMessage(emojiName)}*** a ses 8 joueurs ! \n` +
+                            `- <@${usersIdTable[0].userId.toString()}> \n` + 
+                            `- <@${usersIdTable[1].userId.toString()}> \n` +
+                            `- <@${usersIdTable[2].userId.toString()}> \n` + 
+                            `- <@${usersIdTable[3].userId.toString()}> \n` +
+                            `- <@${usersIdTable[4].userId.toString()}> \n` + 
+                            `- <@${usersIdTable[5].userId.toString()}> \n` +
+                            `- <@${usersIdTable[6].userId.toString()}> \n` + 
+                            `- <@${usersIdTable[7].userId.toString()}> \n\n` +
+
+                            `Validez votre présence en cliquant sur la réaction ✅ en bas de ce message !`
+                        )
+                        .then((sentMessage) => { 
+                            sentMessage.react('✅')
+                        });
                     console.log("✔️ Pod number " + podNumber + " is now full");
                     usersIdTable = [];
                     console.log("⚪️ Entries array for the Pod number " + podNumber + " successfully cleared : " +  usersIdTable);
+                    
                     return collectEntryReactions (emojiName, podsMessage, podNumber);
                 }
 
                 if (podNumber === 2) {
-                    getRightValue.checkinChannel(emojiName, podNumber, discordServer).send(`------------ \n\nLa **TABLE ${podNumber} ** de ***${getRightValue.dayInMessage(emojiName)} ${getRightValue.timestampInMessage(emojiName, podTimestampDates)} ${getRightValue.hourInMessage(emojiName)}*** a ses 8 joueurs ! \n- <@${usersIdTable[0].userId.toString()}> \n- <@${usersIdTable[1].userId.toString()}> \n- <@${usersIdTable[2].userId.toString()}> \n- <@${usersIdTable[3].userId.toString()}> \n- <@${usersIdTable[4].userId.toString()}> \n- <@${usersIdTable[5].userId.toString()}> \n- <@${usersIdTable[6].userId.toString()}> \n- <@${usersIdTable[7].userId.toString()}> \n\nValidez votre présence en cliquant sur la réaction ✅ en bas de ce message !`)
-                    .then((sentMessage) => { 
-                        sentMessage.react('✅')
-                    });
+                    getRightValue.checkinChannel(emojiName, podNumber, discordServer)
+                        .send(
+                            `------------ \n\n` +
+
+                            `La **TABLE ${podNumber} ** de ***${getRightValue.dayInMessage(emojiName)} ${getRightValue.timestampInMessage(emojiName, podTimestampDates)} ${getRightValue.hourInMessage(emojiName)}*** a ses 8 joueurs ! \n` +
+                            `- <@${usersIdTable[0].userId.toString()}> \n` +
+                            `- <@${usersIdTable[1].userId.toString()}> \n` +
+                            `- <@${usersIdTable[2].userId.toString()}> \n` +
+                            `- <@${usersIdTable[3].userId.toString()}> \n` +
+                            `- <@${usersIdTable[4].userId.toString()}> \n` + 
+                            `- <@${usersIdTable[5].userId.toString()}> \n` + 
+                            `- <@${usersIdTable[6].userId.toString()}> \n` + 
+                            `- <@${usersIdTable[7].userId.toString()}> \n\n` + 
+
+                            `Validez votre présence en cliquant sur la réaction ✅ en bas de ce message !`
+                        )
+                        .then((sentMessage) => { 
+                            sentMessage.react('✅')
+                        });
                     console.log("✔️ Pod number " + podNumber + " is now full");
                     usersIdTable = [];
                     console.log("⚪️ Entries array for the Pod number " + podNumber + " successfully cleared : " +  usersIdTable);
+                    
                     return collectEntryReactions (emojiName, podsMessage, podNumber);
                 }
 
             }
 
             else {
-                podsMessage.channel.send(`------------ \n\n**ALERT - POD DU ${getRightValue.dayInMessage(emojiName)} ${getRightValue.timestampInMessage(emojiName, podTimestampDates)} ${getRightValue.hourInMessage(emojiName)} :**\n\n 2 tables de pods ont déjà été gérées par votre serviteur dévoué Drafty. \n\nMalheureusement, pour cette **${podNumber}ème table maintenant complète**, vous allez devoir vous débrouiller comme des grands! Créez une catégorie TABLE POD-${podNumber} ainsi que les channels associés, puis postez un message de check-in un peu comme je le fais d'habitude !`)                    
+                podsMessage.channel
+                    .send(
+                        `------------ \n\n` +
+
+                        `**ALERT - POD DU ${getRightValue.dayInMessage(emojiName)} ${getRightValue.timestampInMessage(emojiName, podTimestampDates)} ${getRightValue.hourInMessage(emojiName)} :** \n\n` +
+
+                        `2 tables de pods ont déjà été gérées par votre serviteur dévoué Drafty.\n\n` +
+
+                        `Malheureusement, pour cette **${podNumber}ème table maintenant complète**, vous allez devoir vous débrouiller comme des grands! \n` + 
+                        `Créez une catégorie TABLE POD-${podNumber} ainsi que les channels associés, puis postez un message de check-in un peu comme je le fais d'habitude !`
+                    );                    
+                
                 return collectEntryReactions (emojiName, podsMessage, podNumber);
             }
 
@@ -119,7 +173,8 @@ const getLastWeekCollection = async() => {
         scheduledMessageDate = new Date(doc.data().scheduledMessageDate.seconds * 1000)
         console.log(scheduledMessageDate)
 
-        return lastWeekCollection = {
+        return lastWeekCollection = 
+        {
             id : doc.id,
             data : doc.data()
         } 
@@ -152,7 +207,7 @@ async function restartLastEntriesCollection () {
 //---------SCHEDULED MSG ENTRIES---------//
 //---------------------------------------//
 
-let scheduledPodsMessage = new cron.CronJob('00 * * * * *', () => { 
+let scheduledPodsMessage = new cron.CronJob('00 40 * * * *', () => { 
     // for Cron : each " * " above means one parameter, 
     // from left to right : second 0-59, minute 0-59, hour 0-23, day of month 1-31, month 0-11, day of week 0-6
     // You can use "*" to don't use the parameter
@@ -160,7 +215,24 @@ let scheduledPodsMessage = new cron.CronJob('00 * * * * *', () => {
 
     scheduledMessageDate = new Date();
     podTimestampDates = getDate.podsTimestamp(scheduledMessageDate)
-    const scheduledMessageContent = `**- Ouverture des inscriptions pour la semaine du ${podTimestampDates.mondayShortFormat} au ${podTimestampDates.sundayShortFormat} -** \n\nPour vous inscrire réagissez à ce message avec vos jours de disponibilité : \n\n${serverEmojis.monday} : Lundi ${podTimestampDates.monday} (20h) - Draft ${currentMtgFormat} \n${serverEmojis.tuesday} : Mardi ${podTimestampDates.tuesday} (20h) - Draft ${currentMtgFormat} \n${serverEmojis.wednesday} : Mercredi ${podTimestampDates.wednesday} (20h) - Draft ${currentMtgFormat} \n${serverEmojis.thursday} : Jeudi ${podTimestampDates.thursday} (20h) - Draft ${currentMtgFormat} \n${serverEmojis.friday} : Vendredi ${podTimestampDates.friday} (20h30) - Draft ${currentMtgFormat} \n${serverEmojis.saturday} : Samedi ${podTimestampDates.saturday} + " (20h30) - Draft ${currentMtgFormat} \n${serverEmojis.sunday} : Dimanche ${podTimestampDates.sunday} (20h) - Draft ${currentMtgFormat} \n:alarm_clock:  : Dimanche ${podTimestampDates.sunday} : Draft Asynchrone (21h) - ${currentMtgFormat} \n\nDès lors qu'une table de 8 joueurs est complète, un message de check-in automatique sera posté dans le channel approprié. Vous serez alors tagués et invités à valider votre présence.\n\nLes joueurs inscrits supplémentaires (mais en nombre insuffisant pour constituer une POD) sont considérés comme prioritaires sur les remplacements éventuels (absence de check-in, désistement de dernière minute etc...).`
+    const scheduledMessageContent = 
+        `**- Ouverture des inscriptions pour la semaine du ${podTimestampDates.mondayShortFormat} au ${podTimestampDates.sundayShortFormat} -** \n\n` +
+
+        `Pour vous inscrire réagissez à ce message avec vos jours de disponibilité : \n\n` +
+
+        `${serverEmojis.monday} : Lundi ${podTimestampDates.monday} (20h) - Draft ${currentMtgFormat} \n` +
+        `${serverEmojis.tuesday} : Mardi ${podTimestampDates.tuesday} (20h) - Draft ${currentMtgFormat} \n` +
+        `${serverEmojis.wednesday} : Mercredi ${podTimestampDates.wednesday} (20h) - Draft ${currentMtgFormat} \n` +
+        `${serverEmojis.thursday} : Jeudi ${podTimestampDates.thursday} (20h) - Draft ${currentMtgFormat} \n` +
+        `${serverEmojis.friday} : Vendredi ${podTimestampDates.friday} (20h30) - Draft ${currentMtgFormat} \n` +
+        `${serverEmojis.saturday} : Samedi ${podTimestampDates.saturday} + " (20h30) - Draft ${currentMtgFormat} \n` +
+        `${serverEmojis.sunday} : Dimanche ${podTimestampDates.sunday} (20h) - Draft ${currentMtgFormat} \n` +
+        `:alarm_clock:  : Dimanche ${podTimestampDates.sunday} : Draft Asynchrone (21h) - ${currentMtgFormat} \n\n` +
+
+        `Dès lors qu'une table de 8 joueurs est complète, un message de check-in automatique sera posté dans le channel approprié. \n`  +
+        `Vous serez alors tagués et invités à valider votre présence. \n\n` +
+
+        `Les joueurs inscrits supplémentaires (mais en nombre insuffisant pour constituer une POD) sont considérés comme prioritaires sur les remplacements éventuels (absence de check-in, désistement de dernière minute etc...).`;
 
     discordServer.channelEntries.send(scheduledMessageContent)
     .then(async (sentMessage) => { 
