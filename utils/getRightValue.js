@@ -152,4 +152,4 @@ class GetRightValue {
 
 const getRightValue = new GetRightValue()
 
-module.exports = getRightValue;
+export default getRightValue;

@@ -1,17 +1,22 @@
-const cron = require('cron');
-require('dotenv').config();
-const { Client, Intents } = require('discord.js');
-const db = require('./db')
-const getRightValue = require('./utils/getRightValue')
-const getDate = require('./utils/getDate')
+import cron from 'cron'
+import "dotenv/config"
+import loggy from 'loggy-discord'
+import { Client, Intents } from 'discord.js'
+import db from './db.js'
+import getRightValue from './utils/getRightValue.js'
+import getDate from './utils/getDate.js'
 
 
 
-//-----------------------------//
-//-------DISCORD CLIENT--------//
-//-----------------------------//
+//-------------------------------------//
+//-------DISCORD / LOGGY CLIENT--------//
+//-------------------------------------//
 
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS] });
+
+async function startLoggy() {
+    await loggy.client({ saveUserTag : true });
+}
 
 
 
@@ -19,7 +24,7 @@ const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_
 //-------------VARS------------//
 //-----------------------------//
 
-const currentMtgFormat = "VOW";
+let currentMtgFormat = ""
 const maxPodsEntries = 8;
 let podNumber = 0;
 let lastWeekCollection
@@ -28,6 +33,15 @@ let podTimestampDates = {}
 let discordServer = {}
 let serverEmojis = {}
 
+async function getCurrentFormat() {
+    const currentFormat = await db.collection("params").doc("format").get()
+
+    currentMtgFormat = currentFormat.data().currentFormat
+
+    loggy.log(`${currentMtgFormat} format has been successfully fetched on firestore`)
+
+    return  console.log(`${currentMtgFormat} format has been successfully fetched on firestore`)
+}
 
 
 //------------------------------------------------//
@@ -61,11 +75,10 @@ let serverEmojis = {}
             });
 
         console.log(`➕ ${user.tag} registered to the pod : ${reaction.emoji.name}`);
-        console.log(usersIdTable);
+        loggy.log(`➕ ${user.tag} registered to the pod : ${reaction.emoji.name}`)
     });
 
     collector.on('remove', (reaction, user) => {
-        console.log(`➖ ${user.tag} removed the reaction ${reaction.emoji.name}`);
         usersIdTable = usersIdTable.filter(function (el) {
             return  el.username !== user.username,
                     el.userId !== user.id
@@ -76,7 +89,8 @@ let serverEmojis = {}
                 [getRightValue.nameInDb(reaction.emoji.name)]: usersIdTable
             });
         
-        console.log(usersIdTable);
+        console.log(`➖ ${user.tag} removed the reaction ${reaction.emoji.name}`);
+        loggy.log(`➖ ${user.tag} removed the reaction ${reaction.emoji.name}`)
     });
     
     collector.on('end', (collected, reason) => {
@@ -106,8 +120,10 @@ let serverEmojis = {}
                             sentMessage.react('✅')
                         });
                     console.log("✔️ Pod number " + podNumber + " is now full");
+                    loggy.log("✔️ Pod number " + podNumber + " is now full")
                     usersIdTable = [];
                     console.log("⚪️ Entries array for the Pod number " + podNumber + " successfully cleared : " +  usersIdTable);
+                    loggy.log("⚪️ Entries array for the Pod number " + podNumber + " successfully cleared : " +  usersIdTable)
                     
                     return collectEntryReactions (emojiName, podsMessage, podNumber);
                 }
@@ -133,8 +149,10 @@ let serverEmojis = {}
                             sentMessage.react('✅')
                         });
                     console.log("✔️ Pod number " + podNumber + " is now full");
+                    loggy.log("✔️ Pod number " + podNumber + " is now full")
                     usersIdTable = [];
                     console.log("⚪️ Entries array for the Pod number " + podNumber + " successfully cleared : " +  usersIdTable);
+                    loggy.log("⚪️ Entries array for the Pod number " + podNumber + " successfully cleared : " +  usersIdTable)
                     
                     return collectEntryReactions (emojiName, podsMessage, podNumber);
                 }
@@ -171,7 +189,6 @@ const getLastWeekCollection = async() => {
 
     lastFirestoreWeekCollection.forEach(doc => {
         scheduledMessageDate = new Date(doc.data().scheduledMessageDate.seconds * 1000)
-        console.log(scheduledMessageDate)
 
         return lastWeekCollection = 
         {
@@ -184,7 +201,6 @@ const getLastWeekCollection = async() => {
 
 async function restartLastEntriesCollection () {
     await getLastWeekCollection()
-    console.log(lastWeekCollection.data.scheduledMessageId)
 
     podTimestampDates = getDate.podsTimestamp(scheduledMessageDate)
 
@@ -198,6 +214,9 @@ async function restartLastEntriesCollection () {
             collectEntryReactions ('s_letter', message, podNumber);
             collectEntryReactions ('d_letter', message, podNumber);
             collectEntryReactions ('⏰', message, podNumber);
+            
+            console.log(`Re-started to collect entries for week : ${scheduledMessageDate}`)
+            loggy.log(`Re-started to collect entries for week : ${scheduledMessageDate}`)
         })
 }
 
@@ -207,7 +226,7 @@ async function restartLastEntriesCollection () {
 //---------SCHEDULED MSG ENTRIES---------//
 //---------------------------------------//
 
-let scheduledPodsMessage = new cron.CronJob('00 40 * * * *', () => { 
+let scheduledPodsMessage = new cron.CronJob('00 * * * * *', () => { 
     // for Cron : each " * " above means one parameter, 
     // from left to right : second 0-59, minute 0-59, hour 0-23, day of month 1-31, month 0-11, day of week 0-6
     // You can use "*" to don't use the parameter
@@ -229,7 +248,7 @@ let scheduledPodsMessage = new cron.CronJob('00 40 * * * *', () => {
         `${serverEmojis.sunday} : Dimanche ${podTimestampDates.sunday} (20h) - Draft ${currentMtgFormat} \n` +
         `:alarm_clock:  : Dimanche ${podTimestampDates.sunday} : Draft Asynchrone (21h) - ${currentMtgFormat} \n\n` +
 
-        `Dès lors qu'une table de 8 joueurs est complète, un message de check-in automatique sera posté dans le channel approprié. \n`  +
+        `Dès lors qu'une table de 8 joueurs est complète (*9 réactions sur un emoji, puisque le bot en avait mise une au préalable*), un message de check-in automatique sera posté dans le channel approprié. \n`  +
         `Vous serez alors tagués et invités à valider votre présence. \n\n` +
 
         `Les joueurs inscrits supplémentaires (mais en nombre insuffisant pour constituer une POD) sont considérés comme prioritaires sur les remplacements éventuels (absence de check-in, désistement de dernière minute etc...).`;
@@ -259,7 +278,8 @@ let scheduledPodsMessage = new cron.CronJob('00 40 * * * *', () => {
             asyncPod: {}
         }
 
-        console.log(scheduledMessageDate)
+        console.log(`New entries collection : ${scheduledMessageDate}`)
+        loggy.log(`New entries collection : ${scheduledMessageDate}`)
         const res = await db.collection('pods-weeks-entries').doc(scheduledMessageDate.toString()).set(firestoreWeekCollection);
 
         let podsMessage = await sentMessage;
@@ -274,6 +294,7 @@ let scheduledPodsMessage = new cron.CronJob('00 40 * * * *', () => {
         collectEntryReactions ('⏰', podsMessage, podNumber);
 
         console.log('🆗 Scheduling cron message just worked')
+        loggy.log('🆗 Scheduling cron message just worked')
 
     })
 
@@ -285,7 +306,29 @@ let scheduledPodsMessage = new cron.CronJob('00 40 * * * *', () => {
 //-------COMMANDS ENGINE-------//
 //-----------------------------//
 
-// client.on('message', ...); // When we'll want to set up some chat commands
+client.on('messageCreate', async (message) => {
+
+    const prefix = process.env.PREFIX
+    const adminCommandToken = process.env.ADMIN_COMMAND_TOKEN
+
+    const commandFormat = `${prefix}format ${adminCommandToken}`
+
+    if (!message.content.startsWith(commandFormat) || message.author.bot) return
+
+    if (message.content.startsWith(commandFormat)) {
+        const messageSplitted = message.content.split (' ')
+        const arg = messageSplitted.filter(word => word !== '')[2]
+
+        db.collection('params').doc("format").update(
+            {
+                currentFormat : arg
+        })
+        .then(async () => {
+            await getCurrentFormat()
+            message.channel.send(`Le format de Draft en cours a bien été changé sur : **${currentMtgFormat}**`)
+        })
+    }
+});
 
 
 
@@ -294,7 +337,8 @@ let scheduledPodsMessage = new cron.CronJob('00 40 * * * *', () => {
 //-----------------------------//
 
 client.once('ready', async () => {
-    console.log('IM SUPER READY YEA!')
+    console.log('DRAFTY SUPER READY YEA!')
+    loggy.log('DRAFTY SUPER READY YEA!')
 
     // Serveur JK
 
@@ -319,7 +363,11 @@ client.once('ready', async () => {
         sunday : discordServer.guild.emojis.cache.get('911267403109912606'),
     }
 
+    await startLoggy()
+    await getCurrentFormat()
     restartLastEntriesCollection()
+    console.log(`Current MTG format : ${currentMtgFormat}`)
+    loggy.log(`Current MTG format : ${currentMtgFormat}`)
     scheduledPodsMessage.start()
 })
 

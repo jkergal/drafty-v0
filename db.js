@@ -1,6 +1,6 @@
-var firebaseAdmin = require("firebase-admin");
+import firebaseAdmin from "firebase-admin"
 
-var serviceAccount = require("./serviceAccountKey.json");
+import serviceAccount from "./serviceAccountKey.json" assert {type: "json"}
 
 const db = firebaseAdmin.initializeApp({
   credential: firebaseAdmin.credential.cert(serviceAccount)
@@ -8,4 +8,4 @@ const db = firebaseAdmin.initializeApp({
 
 const firestore = db.firestore()
 
-module.exports = firestore
+export default firestore

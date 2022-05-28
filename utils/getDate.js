@@ -93,4 +93,4 @@ podsTimestamp(date) {
 
 const getDate = new GetDate()
 
-module.exports = getDate;
+export default getDate;
