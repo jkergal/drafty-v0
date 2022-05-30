@@ -1,10 +1,10 @@
-import cron from 'cron'
-import "dotenv/config"
-import loggy from 'loggy-discord'
-import { Client, Intents } from 'discord.js'
-import db from './db.js'
-import getRightValue from './utils/getRightValue.js'
-import getDate from './utils/getDate.js'
+const cron = require('cron');
+require('dotenv').config();
+const { Client, Intents } = require('discord.js');
+const db = require('./db')
+const getRightValue = require('./utils/getRightValue')
+const getDate = require('./utils/getDate')
+const loggy = require("loggy-discord")
 
 
 
