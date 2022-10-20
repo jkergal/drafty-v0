@@ -2,4 +2,4 @@ $VARIOUS
 .env
 node_modules
 testing.js
-serviceAccountKey.JSON
+serviceAccountKey.json

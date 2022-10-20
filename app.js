@@ -5,6 +5,7 @@ const db = require('./db')
 const getRightValue = require('./utils/getRightValue')
 const getDate = require('./utils/getDate')
 const loggy = require("loggy-discord")
+const FieldValue = require('firebase-admin').firestore.FieldValue;
 
 
 
@@ -71,7 +72,7 @@ async function getCurrentFormat() {
 
         db.collection('pods-weeks-entries').doc(scheduledMessageDate.toString()).update(
             {
-                [getRightValue.nameInDb(reaction.emoji.name)]: usersIdTable
+                [getRightValue.nameInDb(reaction.emoji.name)]: FieldValue.arrayUnion(...usersIdTable)
             });
 
         console.log(`➕ ${user.tag} registered to the pod : ${reaction.emoji.name}`);
