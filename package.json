@@ -4,6 +4,7 @@
   "description": "",
   "main": "drafty.js",
   "scripts": {
+    "start": "node drafty.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
