@@ -28,7 +28,10 @@ async function startLoggy() {
 let currentMtgFormat = ""
 const maxPodsEntries = 8;
 let podNumber = 0;
-let lastWeekCollection
+let lastWeekCollection:         {
+    id : doc.id,
+    data : doc.data()
+} 
 let scheduledMessageDate
 let podTimestampDates = {}
 let discordServer = {}

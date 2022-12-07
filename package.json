@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
+    "start": "node dist/app.js",
     "start:watch": "tsc && (tsc -w & nodemon dist/app.js)",
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -15,7 +15,7 @@
     "cron": "^1.8.2",
     "discord.js": "^13.3.1",
     "dotenv": "^10.0.0",
-    "firebase-admin": "^10.2.0",
+    "firebase-admin": "^11.3.0",
     "loggy-discord": "^1.0.2"
   },
   "devDependencies": {

@@ -1,6 +1,25 @@
+interface DiscordServerObj {
+    channelEntries : string
+    channelCheckIn1 : string
+    channelCheckIn2 : string
+    channelCheckInAsync : string
+    guild : string
+}
+
+interface PodTimestampDatesObj {
+        monday:string, 
+        mondayShortFormat:string, 
+        tuesday:string, 
+        wednesday:string, 
+        thursday:string, 
+        friday:string, 
+        saturday:string,
+        sunday:string, 
+        sundayShortFormat:string, }
+
 class GetRightValue {
 
-    nameInDb = (reactEmojiName) => {
+    nameInDb = (reactEmojiName: string) => {
         let firebasePodDay
     
         switch(reactEmojiName) {
@@ -25,7 +44,7 @@ class GetRightValue {
         return firebasePodDay
     }
     
-    checkinChannel = (reactEmojiName, podNumber, discordServerObj) => {
+    checkinChannel = (reactEmojiName: string, podNumber: number, discordServerObj: DiscordServerObj) => {
         let channel
     
         switch(reactEmojiName) {
@@ -73,7 +92,7 @@ class GetRightValue {
     }
     
     
-    dayInMessage = (reactEmojiName) => {
+    dayInMessage = (reactEmojiName: string) => {
         let day
     
         switch(reactEmojiName) {
@@ -98,7 +117,7 @@ class GetRightValue {
         return day
     }
     
-    hourInMessage = (reactEmojiName) => {
+    hourInMessage = (reactEmojiName: string) => {
         let hour
     
         switch(reactEmojiName) {
@@ -123,7 +142,7 @@ class GetRightValue {
         return hour
     }
     
-    timestampInMessage = (reactEmojiName, podTimestampDatesObj) => {
+    timestampInMessage = (reactEmojiName: string, podTimestampDatesObj: PodTimestampDatesObj) => {
         let timestamp
     
         switch(reactEmojiName) {
@@ -149,7 +168,4 @@ class GetRightValue {
     }
 }
 
-
-const getRightValue = new GetRightValue()
-
-module.exports = getRightValue;
+module.exports = new GetRightValue()
