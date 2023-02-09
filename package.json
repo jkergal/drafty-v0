@@ -2,8 +2,11 @@
   "name": "drafty",
   "version": "1.0.0",
   "description": "",
-  "main": "drafty.js",
+  "main": "app.js",
   "scripts": {
+    "start": "node dist/app.js",
+    "start:watch": "tsc && (tsc -w & nodemon dist/app.js)",
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -11,6 +14,12 @@
   "dependencies": {
     "cron": "^1.8.2",
     "discord.js": "^13.3.1",
-    "dotenv": "^10.0.0"
+    "dotenv": "^10.0.0",
+    "firebase-admin": "^11.3.0",
+    "loggy-discord": "^1.0.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20",
+    "typescript": "^4.9.3"
   }
 }
